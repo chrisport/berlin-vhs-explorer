@@ -5,7 +5,9 @@ out/
 .kotlin
 .idea
 *.iml
-
+temp_vhs.json
+__pycache__/
+.DS_Store
 ### Eclipse ###
 .apt_generated
 .classpath
