@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>VHS Open Data Search</title>
+    <style>
+        /* Reset & CSS Variables */
+        :root {
+          --primary-color: #0056b3;
+          --bg-color: #f8f9fa;
+          --card-bg: #ffffff;
+          --text-color: #212529;
+          --muted-text: #6c757d;
+          --border-color: #dee2e6;
+          --radius: 8px;
+        }
+
+        * {
+          box-sizing: border-box;
+          margin: 0;
+          padding: 0;
+        }
+
+        body {
+          font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+          background-color: var(--bg-color);
+          color: var(--text-color);
+          display: flex;
+          flex-direction: column;
+          min-height: 100vh;
+          line-height: 1.6;
+        }
+
+        /* Header & Navigation */
+        header {
+          background-color: var(--card-bg);
+          border-bottom: 1px solid var(--border-color);
+          padding: 1rem 2rem;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+        }
+
+        .brand h1 {
+          font-size: 1.25rem;
+          color: var(--primary-color);
+        }
+
+        .lang-toggle-btn {
+          background: transparent;
+          border: 1px solid var(--border-color);
+          padding: 0.5rem 1rem;
+          border-radius: var(--radius);
+          cursor: pointer;
+          font-weight: 600;
+          font-size: 0.9rem;
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          transition: background-color 0.2s, border-color 0.2s;
+        }
+
+        .lang-toggle-btn:hover {
+          background-color: var(--bg-color);
+          border-color: var(--primary-color);
+        }
+
+        /* Main Content Container */
+        main {
+          flex: 1;
+          max-width: 900px;
+          width: 100%;
+          margin: 2rem auto;
+          padding: 0 1rem;
+        }
+
+        .search-box {
+          background: var(--card-bg);
+          padding: 2rem;
+          border-radius: var(--radius);
+          border: 1px solid var(--border-color);
+          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
+        }
+
+        .search-box h2 {
+          margin-bottom: 1rem;
+        }
+
+        .input-group {
+          display: flex;
+          gap: 0.5rem;
+        }
+
+        input[type="text"] {
+          flex: 1;
+          padding: 0.75rem 1rem;
+          border: 1px solid var(--border-color);
+          border-radius: var(--radius);
+          font-size: 1rem;
+        }
+
+        button.search-btn {
+          background-color: var(--primary-color);
+          color: white;
+          border: none;
+          padding: 0.75rem 1.5rem;
+          border-radius: var(--radius);
+          cursor: pointer;
+          font-weight: 600;
+          font-size: 1rem;
+        }
+
+        button.search-btn:hover {
+          opacity: 0.9;
+        }
+
+        /* Footer & Disclaimer */
+        footer {
+          background-color: var(--card-bg);
+          border-top: 1px solid var(--border-color);
+          padding: 1.5rem 2rem;
+          margin-top: auto;
+        }
+
+        .disclaimer-container {
+          max-width: 900px;
+          margin: 0 auto;
+          font-size: 0.85rem;
+          color: var(--muted-text);
+          display: flex;
+          align-items: flex-start;
+          gap: 0.5rem;
+        }
+
+        .disclaimer-icon {
+          font-size: 1rem;
+          line-height: 1;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Header -->
+<header>
+    <div class="brand">
+        <h1 data-i18n="appTitle">VHS Kurssuche</h1>
+    </div>
+    <button id="lang-toggle-btn" class="lang-toggle-btn" aria-label="Language switch">
+        🌐 <span id="lang-label">English</span>
+    </button>
+</header>
+
+<!-- Main Content -->
+<main>
+    <section class="search-box">
+        <h2 data-i18n="searchHeading">Kurse und Angebote durchsuchen</h2>
+        <div class="input-group">
+            <input
+                    type="text"
+                    id="search-input"
+                    data-i18n-placeholder="searchPlaceholder"
+                    placeholder="z. B. Spanisch A1, Programmieren, Yoga..."
+            />
+            <button class="search-btn" data-i18n="searchButton">Suchen</button>
+        </div>
+    </section>
+</main>
+
+<!-- Footer / Disclaimer -->
+<footer>
+    <div class="disclaimer-container">
+        <span class="disclaimer-icon">ℹ️</span>
+        <p id="disclaimer-text" data-i18n="disclaimer">
+            Diese Website ist ein KI-generiertes Experiment. Sie steht in keiner Verbindung zur Volkshochschule. Die offenen Daten der VHS werden verwendet und durchsuchbar gemacht.
+        </p>
+    </div>
+</footer>
+
+<!-- Translation & Logic Script -->
+<script>
+    // 1. Language Dictionaries (Defaulting to German)
+    const translations = {
+      de: {
+        appTitle: "VHS Kurssuche",
+        searchHeading: "Kurse und Angebote durchsuchen",
+        searchPlaceholder: "z. B. Spanisch A1, Programmieren, Yoga...",
+        searchButton: "Suchen",
+        disclaimer: "Diese Website ist ein KI-generiertes Experiment. Sie steht in keiner Verbindung zur Volkshochschule. Die offenen Daten der VHS werden verwendet und durchsuchbar gemacht.",
+        nextLangLabel: "English",
+        htmlLang: "de"
+      },
+      en: {
+        appTitle: "VHS Course Search",
+        searchHeading: "Search Courses & Offers",
+        searchPlaceholder: "e.g. Spanish A1, Programming, Yoga...",
+        searchButton: "Search",
+        disclaimer: "This website is an AI generated experiment, it is not connected to Volkshochschule in any way, the open data from VHS is used and made available and searchable.",
+        nextLangLabel: "Deutsch",
+        htmlLang: "en"
+      }
+    };
+
+    // 2. Initialize Language State (Check saved preference or default to 'de')
+    let currentLang = localStorage.getItem('vhs_app_lang') || 'de';
+
+    // 3. UI Update Function
+    function updateUI() {
+      const t = translations[currentLang];
+
+      // Update HTML lang attribute
+      document.documentElement.lang = t.htmlLang;
+
+      // Update text elements with data-i18n attributes
+      document.querySelectorAll('[data-i18n]').forEach((element) => {
+        const key = element.getAttribute('data-i18n');
+        if (t[key]) {
+          element.textContent = t[key];
+        }
+      });
+
+      // Update placeholder attributes
+      document.querySelectorAll('[data-i18n-placeholder]').forEach((element) => {
+        const key = element.getAttribute('data-i18n-placeholder');
+        if (t[key]) {
+          element.placeholder = t[key];
+        }
+      });
+
+      // Update button label for language toggle
+      document.getElementById('lang-label').textContent = t.nextLangLabel;
+    }
+
+    // 4. Toggle Handler
+    document.getElementById('lang-toggle-btn').addEventListener('click', () => {
+      currentLang = currentLang === 'de' ? 'en' : 'de';
+      localStorage.setItem('vhs_app_lang', currentLang);
+      updateUI();
+    });
+
+    // Initial render
+    updateUI();
+</script>
+</body>
+</html>
