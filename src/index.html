@@ -1,246 +1,347 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>VHS Open Data Search</title>
-    <style>
-        /* Reset & CSS Variables */
-        :root {
-          --primary-color: #0056b3;
-          --bg-color: #f8f9fa;
-          --card-bg: #ffffff;
-          --text-color: #212529;
-          --muted-text: #6c757d;
-          --border-color: #dee2e6;
-          --radius: 8px;
-        }
-
-        * {
-          box-sizing: border-box;
-          margin: 0;
-          padding: 0;
-        }
-
-        body {
-          font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-          background-color: var(--bg-color);
-          color: var(--text-color);
-          display: flex;
-          flex-direction: column;
-          min-height: 100vh;
-          line-height: 1.6;
-        }
-
-        /* Header & Navigation */
-        header {
-          background-color: var(--card-bg);
-          border-bottom: 1px solid var(--border-color);
-          padding: 1rem 2rem;
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
-        }
-
-        .brand h1 {
-          font-size: 1.25rem;
-          color: var(--primary-color);
-        }
-
-        .lang-toggle-btn {
-          background: transparent;
-          border: 1px solid var(--border-color);
-          padding: 0.5rem 1rem;
-          border-radius: var(--radius);
-          cursor: pointer;
-          font-weight: 600;
-          font-size: 0.9rem;
-          display: flex;
-          align-items: center;
-          gap: 0.5rem;
-          transition: background-color 0.2s, border-color 0.2s;
-        }
-
-        .lang-toggle-btn:hover {
-          background-color: var(--bg-color);
-          border-color: var(--primary-color);
-        }
-
-        /* Main Content Container */
-        main {
-          flex: 1;
-          max-width: 900px;
-          width: 100%;
-          margin: 2rem auto;
-          padding: 0 1rem;
-        }
-
-        .search-box {
-          background: var(--card-bg);
-          padding: 2rem;
-          border-radius: var(--radius);
-          border: 1px solid var(--border-color);
-          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
-        }
-
-        .search-box h2 {
-          margin-bottom: 1rem;
-        }
-
-        .input-group {
-          display: flex;
-          gap: 0.5rem;
-        }
-
-        input[type="text"] {
-          flex: 1;
-          padding: 0.75rem 1rem;
-          border: 1px solid var(--border-color);
-          border-radius: var(--radius);
-          font-size: 1rem;
-        }
-
-        button.search-btn {
-          background-color: var(--primary-color);
-          color: white;
-          border: none;
-          padding: 0.75rem 1.5rem;
-          border-radius: var(--radius);
-          cursor: pointer;
-          font-weight: 600;
-          font-size: 1rem;
-        }
-
-        button.search-btn:hover {
-          opacity: 0.9;
-        }
-
-        /* Footer & Disclaimer */
-        footer {
-          background-color: var(--card-bg);
-          border-top: 1px solid var(--border-color);
-          padding: 1.5rem 2rem;
-          margin-top: auto;
-        }
-
-        .disclaimer-container {
-          max-width: 900px;
-          margin: 0 auto;
-          font-size: 0.85rem;
-          color: var(--muted-text);
-          display: flex;
-          align-items: flex-start;
-          gap: 0.5rem;
-        }
-
-        .disclaimer-icon {
-          font-size: 1rem;
-          line-height: 1;
-        }
-    </style>
+    <meta charset="UTF-8">
+    <title>🧘 Berlin VHS Explorer</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load SQL.js WebAssembly Engine -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.js"></script>
 </head>
-<body>
+<body class="bg-gray-50 text-gray-800 font-sans">
 
-<!-- Header -->
-<header>
-    <div class="brand">
-        <h1 data-i18n="appTitle">VHS Kurssuche</h1>
-    </div>
-    <button id="lang-toggle-btn" class="lang-toggle-btn" aria-label="Language switch">
-        🌐 <span id="lang-label">English</span>
-    </button>
-</header>
-
-<!-- Main Content -->
-<main>
-    <section class="search-box">
-        <h2 data-i18n="searchHeading">Kurse und Angebote durchsuchen</h2>
-        <div class="input-group">
-            <input
-                    type="text"
-                    id="search-input"
-                    data-i18n-placeholder="searchPlaceholder"
-                    placeholder="z. B. Spanisch A1, Programmieren, Yoga..."
-            />
-            <button class="search-btn" data-i18n="searchButton">Suchen</button>
+<div class="max-w-7xl mx-auto px-4 py-6">
+    <header class="mb-6 flex justify-between items-center border-b pb-4">
+        <div>
+            <h1 class="text-3xl font-bold text-indigo-900">🧘 Berlin VHS Explorer</h1>
+            <p class="text-sm text-gray-500">Fast, client-side SQLite browser for Berlin Volkshochschule Open Data.</p>
         </div>
-    </section>
-</main>
+        <button id="sync-btn" onclick="loadDatabase(true)" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-4 py-2 rounded-lg text-sm shadow transition">
+            🔄 Download Latest Data
+        </button>
+    </header>
 
-<!-- Footer / Disclaimer -->
-<footer>
-    <div class="disclaimer-container">
-        <span class="disclaimer-icon">ℹ️</span>
-        <p id="disclaimer-text" data-i18n="disclaimer">
-            Diese Website ist ein KI-generiertes Experiment. Sie steht in keiner Verbindung zur Volkshochschule. Die offenen Daten der VHS werden verwendet und durchsuchbar gemacht.
-        </p>
+    <!-- App Layout -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+
+        <!-- Filters Sidebar -->
+        <aside class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 h-fit">
+            <h2 class="font-bold text-lg mb-4 text-gray-700">🎯 Filters</h2>
+
+            <!-- District Multi-Select -->
+            <div class="mb-5">
+                <div class="flex justify-between items-center mb-1">
+                    <label class="block text-xs font-semibold uppercase text-gray-500">Districts (Bezirk)</label>
+                    <button onclick="clearDistricts()" class="text-xs text-indigo-600 hover:underline">Clear all</button>
+                </div>
+                <div id="district-container" class="max-h-48 overflow-y-auto border rounded-lg p-2 space-y-1.5 bg-gray-50 text-xs">
+                    <div class="text-gray-400 italic">Loading districts...</div>
+                </div>
+            </div>
+
+            <!-- Multi-Keyword Exclude -->
+            <div class="mb-5">
+                <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Exclude Keywords</label>
+                <input type="text" id="exclude-filter" placeholder="e.g. Integrationskurs, Deutsch, B1" class="w-full border rounded-lg p-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none" oninput="resetPageAndRun()">
+                <p class="text-[10px] text-gray-400 mt-1">Separate terms with commas to exclude multiple keywords.</p>
+            </div>
+
+            <!-- Date Range Filter -->
+            <div class="mb-5">
+                <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Course Start Date</label>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <span class="text-[10px] text-gray-400 block">From:</span>
+                        <input type="date" id="date-from" class="w-full border rounded-lg p-1.5 text-xs focus:ring-2 focus:ring-indigo-500 outline-none" onchange="resetPageAndRun()">
+                    </div>
+                    <div>
+                        <span class="text-[10px] text-gray-400 block">To:</span>
+                        <input type="date" id="date-to" class="w-full border rounded-lg p-1.5 text-xs focus:ring-2 focus:ring-indigo-500 outline-none" onchange="resetPageAndRun()">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Seats Availability -->
+            <div class="mb-5 flex items-center gap-2">
+                <input type="checkbox" id="seats-filter" class="rounded text-indigo-600 focus:ring-indigo-500" onchange="resetPageAndRun()">
+                <label for="seats-filter" class="text-sm font-medium text-gray-700">Only available seats</label>
+            </div>
+
+            <!-- Sorting -->
+            <div class="mb-5">
+                <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Sort By</label>
+                <select id="sort-filter" class="w-full border rounded-lg p-2 text-sm focus:ring-2 focus:ring-indigo-500" onchange="resetPageAndRun()">
+                    <option value="beginn ASC">Start Date (Soonest)</option>
+                    <option value="numeric_price ASC">Price (Low to High)</option>
+                    <option value="numeric_price DESC">Price (High to Low)</option>
+                    <option value="available_seats DESC">Seats Available</option>
+                </select>
+            </div>
+
+            <!-- Items Per Page -->
+            <div class="mb-2">
+                <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Items Per Page</label>
+                <select id="page-size-filter" class="w-full border rounded-lg p-2 text-sm focus:ring-2 focus:ring-indigo-500" onchange="resetPageAndRun()">
+                    <option value="50">50 items</option>
+                    <option value="100" selected>100 items</option>
+                    <option value="250">250 items</option>
+                    <option value="500">500 items</option>
+                </select>
+            </div>
+        </aside>
+
+        <!-- Main Results Column -->
+        <main class="md:col-span-3">
+            <!-- Search Input -->
+            <div class="mb-4">
+                <input type="text" id="search-query" placeholder="🔍 Search title, course number (FK3.111), tags, or keyword..."
+                       class="w-full border border-gray-300 rounded-xl p-3 text-sm shadow-sm focus:ring-2 focus:ring-indigo-500 outline-none" oninput="resetPageAndRun()">
+            </div>
+
+            <!-- Metric Counter & Pagination Controls Bar -->
+            <div class="flex flex-wrap justify-between items-center mb-4 text-sm text-gray-600 gap-2">
+                <div id="status-bar" class="font-medium">Loading database...</div>
+                <div id="pagination-controls" class="flex items-center gap-2 hidden">
+                    <button id="prev-btn" onclick="changePage(-1)" class="px-3 py-1 bg-white border rounded-lg hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed">← Prev</button>
+                    <span id="page-indicator" class="text-xs font-semibold">Page 1 of 1</span>
+                    <button id="next-btn" onclick="changePage(1)" class="px-3 py-1 bg-white border rounded-lg hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed">Next →</button>
+                </div>
+            </div>
+
+            <!-- Course List Container -->
+            <div id="course-list" class="space-y-4"></div>
+        </main>
+
     </div>
-</footer>
+</div>
 
-<!-- Translation & Logic Script -->
 <script>
-    // 1. Language Dictionaries (Defaulting to German)
-    const translations = {
-      de: {
-        appTitle: "VHS Kurssuche",
-        searchHeading: "Kurse und Angebote durchsuchen",
-        searchPlaceholder: "z. B. Spanisch A1, Programmieren, Yoga...",
-        searchButton: "Suchen",
-        disclaimer: "Diese Website ist ein KI-generiertes Experiment. Sie steht in keiner Verbindung zur Volkshochschule. Die offenen Daten der VHS werden verwendet und durchsuchbar gemacht.",
-        nextLangLabel: "English",
-        htmlLang: "de"
-      },
-      en: {
-        appTitle: "VHS Course Search",
-        searchHeading: "Search Courses & Offers",
-        searchPlaceholder: "e.g. Spanish A1, Programming, Yoga...",
-        searchButton: "Search",
-        disclaimer: "This website is an AI generated experiment, it is not connected to Volkshochschule in any way, the open data from VHS is used and made available and searchable.",
-        nextLangLabel: "Deutsch",
-        htmlLang: "en"
-      }
-    };
+    let db = null;
+    let bookmarks = new Set(JSON.parse(localStorage.getItem('vhs_bookmarks') || '[]'));
+    let currentPage = 1;
 
-    // 2. Initialize Language State (Check saved preference or default to 'de')
-    let currentLang = localStorage.getItem('vhs_app_lang') || 'de';
-
-    // 3. UI Update Function
-    function updateUI() {
-      const t = translations[currentLang];
-
-      // Update HTML lang attribute
-      document.documentElement.lang = t.htmlLang;
-
-      // Update text elements with data-i18n attributes
-      document.querySelectorAll('[data-i18n]').forEach((element) => {
-        const key = element.getAttribute('data-i18n');
-        if (t[key]) {
-          element.textContent = t[key];
-        }
+    async function initSqlJS() {
+      const SQL = await initSqlJs({
+        locateFile: file => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/${file}`
       });
-
-      // Update placeholder attributes
-      document.querySelectorAll('[data-i18n-placeholder]').forEach((element) => {
-        const key = element.getAttribute('data-i18n-placeholder');
-        if (t[key]) {
-          element.placeholder = t[key];
-        }
-      });
-
-      // Update button label for language toggle
-      document.getElementById('lang-label').textContent = t.nextLangLabel;
+      return SQL;
     }
 
-    // 4. Toggle Handler
-    document.getElementById('lang-toggle-btn').addEventListener('click', () => {
-      currentLang = currentLang === 'de' ? 'en' : 'de';
-      localStorage.setItem('vhs_app_lang', currentLang);
-      updateUI();
-    });
+    async function loadDatabase(forceRefresh = false) {
+      document.getElementById('status-bar').innerText = '📥 Fetching SQLite database into browser WASM engine...';
+      try {
+        const SQL = await initSqlJS();
+        const response = await fetch('vhs_courses.db' + (forceRefresh ? '?t=' + Date.now() : ''));
+        const buf = await response.arrayBuffer();
+        db = new SQL.Database(new Uint8Array(buf));
 
-    // Initial render
-    updateUI();
+        populateDistricts();
+        setupDateBounds();
+        runQuery();
+      } catch (err) {
+        document.getElementById('status-bar').innerText = '❌ Failed to load SQLite database: ' + err.message;
+      }
+    }
+
+    function populateDistricts() {
+      const res = db.exec("SELECT DISTINCT bezirk FROM courses WHERE bezirk IS NOT NULL AND bezirk != '' ORDER BY bezirk ASC");
+      const container = document.getElementById('district-container');
+      container.innerHTML = '';
+
+      if (res.length > 0) {
+        res[0].values.forEach(([district], index) => {
+          container.innerHTML += `
+            <label class="flex items-center gap-2 cursor-pointer hover:text-indigo-600">
+              <input type="checkbox" value="${district}" class="district-checkbox rounded text-indigo-600 focus:ring-indigo-500" onchange="resetPageAndRun()">
+              <span>${district}</span>
+            </label>
+          `;
+        });
+      }
+    }
+
+    function setupDateBounds() {
+      const res = db.exec("SELECT MIN(beginn), MAX(beginn) FROM courses WHERE beginn IS NOT NULL AND beginn != ''");
+      if (res.length > 0 && res[0].values[0]) {
+        const [minDate, maxDate] = res[0].values[0];
+        const dateFromInput = document.getElementById('date-from');
+        const dateToInput = document.getElementById('date-to');
+
+        if (minDate) dateFromInput.min = minDate;
+        if (maxDate) dateToInput.max = maxDate;
+      }
+    }
+
+    function clearDistricts() {
+      document.querySelectorAll('.district-checkbox').forEach(cb => cb.checked = false);
+      resetPageAndRun();
+    }
+
+    function toggleBookmark(guid) {
+      if (bookmarks.has(guid)) {
+        bookmarks.delete(guid);
+      } else {
+        bookmarks.add(guid);
+      }
+      localStorage.setItem('vhs_bookmarks', JSON.stringify(Array.from(bookmarks)));
+      runQuery();
+    }
+
+    function resetPageAndRun() {
+      currentPage = 1;
+      runQuery();
+    }
+
+    function changePage(delta) {
+      currentPage += delta;
+      runQuery();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function runQuery() {
+      if (!db) return;
+
+      // 1. Districts
+      const selectedDistricts = Array.from(document.querySelectorAll('.district-checkbox:checked')).map(cb => cb.value);
+
+      // 2. Exclude terms
+      const excludeRaw = document.getElementById('exclude-filter').value;
+      const excludeTerms = excludeRaw.split(',')
+        .map(term => term.trim().toLowerCase())
+        .filter(term => term.length > 0);
+
+      // 3. Dates
+      const dateFrom = document.getElementById('date-from').value;
+      const dateTo = document.getElementById('date-to').value;
+
+      const onlyAvailable = document.getElementById('seats-filter').checked;
+      const sortBy = document.getElementById('sort-filter').value;
+      const pageSize = parseInt(document.getElementById('page-size-filter').value) || 100;
+      const search = document.getElementById('search-query').value.toLowerCase().trim();
+
+      let conditions = ["1=1"];
+      let params = [];
+
+      if (selectedDistricts.length > 0) {
+        const placeholders = selectedDistricts.map(() => '?').join(',');
+        conditions.push(`bezirk IN (${placeholders})`);
+        params.push(...selectedDistricts);
+      }
+
+      if (dateFrom) {
+        conditions.push("beginn >= ?");
+        params.push(dateFrom);
+      }
+      if (dateTo) {
+        conditions.push("beginn <= ?");
+        params.push(dateTo);
+      }
+
+      if (onlyAvailable) {
+        conditions.push("available_seats > 0");
+      }
+
+      excludeTerms.forEach(term => {
+        conditions.push("LOWER(name) NOT LIKE ?");
+        params.push(`%${term}%`);
+      });
+
+      if (search) {
+        conditions.push("(LOWER(name) LIKE ? OR LOWER(nummer) LIKE ? OR LOWER(tags) LIKE ? OR LOWER(description) LIKE ?)");
+        params.push(`%${search}%`, `%${search}%`, `%${search}%`, `%${search}%`);
+      }
+
+      const whereClause = conditions.join(" AND ");
+
+      // A. Get EXACT TOTAL COUNT
+      const countSql = `SELECT COUNT(*) FROM courses WHERE ${whereClause}`;
+      const countStmt = db.prepare(countSql);
+      countStmt.bind(params);
+      countStmt.step();
+      const totalCount = countStmt.get()[0];
+      countStmt.free();
+
+      // Calculate Pagination
+      const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
+      if (currentPage > totalPages) currentPage = totalPages;
+      if (currentPage < 1) currentPage = 1;
+      const offset = (currentPage - 1) * pageSize;
+
+      // B. Fetch Paginated Records
+      const sql = `
+        SELECT guid, nummer, name, bezirk, beginn, ende, numeric_price, raw_price, available_seats, cur_seats, max_seats, tags, description, location, dozent, url
+        FROM courses
+        WHERE ${whereClause}
+        ORDER BY ${sortBy}
+        LIMIT ? OFFSET ?
+      `;
+
+      const stmt = db.prepare(sql);
+      stmt.bind([...params, pageSize, offset]);
+
+      let html = "";
+      let displayedCount = 0;
+
+      while (stmt.step()) {
+        displayedCount++;
+        const row = stmt.getAsObject();
+        const isBookmarked = bookmarks.has(row.guid);
+
+        html += `
+          <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 hover:border-indigo-200 transition">
+            <div class="flex justify-between items-start">
+              <div>
+                <span class="text-xs font-semibold px-2 py-0.5 rounded bg-gray-100 text-gray-600">${row.bezirk}</span>
+                <span class="text-xs font-mono text-gray-400 ml-2">[${row.nummer}]</span>
+                <h3 class="text-base font-bold text-gray-900 mt-1">${row.name}</h3>
+              </div>
+              <button onclick="toggleBookmark('${row.guid}')" class="text-xl">
+                ${isBookmarked ? '⭐' : '☆'}
+              </button>
+            </div>
+
+            <p class="text-sm text-gray-600 mt-2 line-clamp-2">${row.description || 'No description provided.'}</p>
+
+            <div class="mt-4 flex flex-wrap gap-4 text-xs text-gray-500 border-t pt-3">
+              <div>📍 <b>Location:</b> ${row.location}</div>
+              <div>📅 <b>Start:</b> ${row.beginn}</div>
+              <div>💶 <b>Price:</b> ${row.raw_price} €</div>
+              <div>🪑 <b>Seats:</b> ${row.available_seats > 0 ? `🟢 ${row.available_seats} free` : '🔴 Full'}</div>
+            </div>
+
+            ${row.url ? `
+              <div class="mt-3 text-right">
+                <a href="${row.url}" target="_blank" class="inline-block text-xs bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-semibold px-3 py-1.5 rounded-lg transition">
+                  Book on VHS Site 🔗
+                </a>
+              </div>
+            ` : ''}
+          </div>
+        `;
+      }
+      stmt.free();
+
+      // Update Header Text & Pagination Buttons
+      const startItem = totalCount > 0 ? offset + 1 : 0;
+      const endItem = Math.min(offset + pageSize, totalCount);
+
+      document.getElementById('status-bar').innerText = `Showing ${startItem}-${endItem} of ${totalCount.toLocaleString()} courses found`;
+
+      const controls = document.getElementById('pagination-controls');
+      if (totalCount > pageSize) {
+        controls.classList.remove('hidden');
+        document.getElementById('page-indicator').innerText = `Page ${currentPage} of ${totalPages}`;
+        document.getElementById('prev-btn').disabled = (currentPage === 1);
+        document.getElementById('next-btn').disabled = (currentPage === totalPages);
+      } else {
+        controls.classList.add('hidden');
+      }
+
+      document.getElementById('course-list').innerHTML = html || '<div class="text-gray-400 p-8 text-center bg-white rounded-xl">No matching courses found.</div>';
+    }
+
+    // Load database automatically on startup
+    window.addEventListener('DOMContentLoaded', () => loadDatabase(false));
 </script>
 </body>
 </html>
