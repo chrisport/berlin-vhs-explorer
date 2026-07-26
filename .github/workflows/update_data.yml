@@ -26,7 +26,7 @@ jobs:
         run: pip install pandas
 
       - name: Fetch and Build SQLite DB
-        run: python build_db.py
+        run: python src/sqlite_builder.py
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
