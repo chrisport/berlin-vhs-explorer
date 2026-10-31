@@ -67,6 +67,15 @@
                 <label for="seats-filter" class="text-sm font-medium text-gray-700">Only available seats</label>
             </div>
 
+            <!-- Weekend Only -->
+            <div class="mb-5">
+                <div class="flex items-center gap-2">
+                    <input type="checkbox" id="weekend-filter" class="rounded text-indigo-600 focus:ring-indigo-500" onchange="resetPageAndRun()">
+                    <label for="weekend-filter" class="text-sm font-medium text-gray-700">Weekends only</label>
+                </div>
+                <p class="text-[10px] text-gray-400 mt-1">Courses that start and end on a Saturday or Sunday.</p>
+            </div>
+
             <!-- Sorting -->
             <div class="mb-5">
                 <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Sort By</label>
@@ -187,6 +196,15 @@
       runQuery();
     }
 
+    // "2026-11-14" -> "Sat, " (parsed as a local date to avoid timezone shifts)
+    const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    function weekdayPrefix(isoDate) {
+      const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(isoDate || '');
+      if (!m) return '';
+      const d = new Date(+m[1], +m[2] - 1, +m[3]);
+      return WEEKDAYS[d.getDay()] + ', ';
+    }
+
     function resetPageAndRun() {
       currentPage = 1;
       runQuery();
@@ -215,6 +233,7 @@
       const dateTo = document.getElementById('date-to').value;
 
       const onlyAvailable = document.getElementById('seats-filter').checked;
+      const onlyWeekend = document.getElementById('weekend-filter').checked;
       const sortBy = document.getElementById('sort-filter').value;
       const pageSize = parseInt(document.getElementById('page-size-filter').value) || 100;
       const search = document.getElementById('search-query').value.toLowerCase().trim();
@@ -239,6 +258,12 @@
 
       if (onlyAvailable) {
         conditions.push("available_seats > 0");
+      }
+
+      // Weekend only: start AND end date fall on Sat (6) or Sun (0).
+      // Single-day courses without an end date are judged by their start date.
+      if (onlyWeekend) {
+        conditions.push("strftime('%w', beginn) IN ('0','6') AND strftime('%w', COALESCE(NULLIF(ende, ''), beginn)) IN ('0','6')");
       }
 
       excludeTerms.forEach(term => {
@@ -304,7 +329,7 @@
 
             <div class="mt-4 flex flex-wrap gap-4 text-xs text-gray-500 border-t pt-3">
               <div>📍 <b>Location:</b> ${row.location}</div>
-              <div>📅 <b>Start:</b> ${row.beginn}</div>
+              <div>📅 <b>Start:</b> ${weekdayPrefix(row.beginn)}${row.beginn}</div>
               <div>💶 <b>Price:</b> ${row.raw_price} €</div>
               <div>🪑 <b>Seats:</b> ${row.available_seats > 0 ? `🟢 ${row.available_seats} free` : '🔴 Full'}</div>
             </div>
