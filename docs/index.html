@@ -180,6 +180,14 @@
         if (minDate) dateFromInput.min = minDate;
         if (maxDate) dateToInput.max = maxDate;
       }
+
+      // Default "From" to today (local date), unless the user already picked one
+      const dateFromInput = document.getElementById('date-from');
+      if (!dateFromInput.value) {
+        const now = new Date();
+        const pad = n => String(n).padStart(2, '0');
+        dateFromInput.value = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+      }
     }
 
     function clearDistricts() {
