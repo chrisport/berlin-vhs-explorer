@@ -1,0 +1,48 @@
+name: Deploy App
+
+# Deploys UI changes on push. The course data is refreshed separately by
+# update_data.yml (daily); this workflow reuses the DB that is currently live.
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'docs/index.html'
+  workflow_dispatch:
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Pages
+        id: pages
+        uses: actions/configure-pages@v4
+
+      - name: Reuse currently deployed database
+        run: |
+          # A Pages deploy replaces the whole site, so carry over the live DB.
+          # Falls back to the committed docs/vhs_courses.db if the download fails.
+          curl -fsSL "${{ steps.pages.outputs.base_url }}/vhs_courses.db" -o /tmp/live.db \
+            && mv /tmp/live.db docs/vhs_courses.db \
+            || echo "::warning::Could not download live DB, deploying committed copy"
+          ls -la docs/
+
+      - name: Upload Artifacts
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: './docs'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

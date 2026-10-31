@@ -5,6 +5,10 @@ on:
     - cron: '0 2 * * *' # Daily at 02:00 UTC
   workflow_dispatch: # Allows manual trigger button in GitHub UI
 
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
 permissions:
   contents: write
   pages: write
@@ -26,7 +30,10 @@ jobs:
         run: pip install pandas
 
       - name: Fetch and Build SQLite DB
-        run: python src/sqlite_builder.py
+        run: |
+          python src/sqlite_builder.py
+          # Builder writes to the working dir; publish the fresh DB
+          mv vhs_courses.db docs/vhs_courses.db
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
